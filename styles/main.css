@@ -1,0 +1,26 @@
+*, *::before, *::after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  font-size: 100%;
+}
+
+body {
+  font-family: 'Open Sans';
+  color: white;
+  min-height: 100%;
+  background-color: green;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+#canvas-content {
+  background-color: white;
+}
