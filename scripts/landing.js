@@ -1,39 +1,60 @@
 var canvas = document.getElementById("canvas-content");
 var canvas_context = canvas.getContext("2d");
 
-function Player() {
-  this.xAxis = 785;
-  this.yAxis = 225;
-  this.width = 10;
-  this.height = 50;
+//Paddle contructor and prototype
+function Paddle (x, y) {
+  this.xAxis = x;
+  this.yAxis = y;
+  this.speed = 5;
+}
+
+Paddle.prototype = {
+  render: function(){
+    canvas_context.fillRect(this.xAxis, this.yAxis, this.width, this.height);
+  },
+  delete: function(){
+    canvas_context.clearRect(this.xAxis, this.yAxis, this.width, this.height);
+  },
+  width: 10,
+  height: 50,
+  move: function(key){
+    if(key == "ArrowUp" && this.yAxis >= this.speed) {
+      this.delete();
+      this.yAxis -= this.speed;
+      animate(step);
+    } else if(key == "ArrowDown" && this.yAxis <= 450 - this.speed) {
+      this.delete();
+      this.yAxis += this.speed;
+      animate(step);
+    } else {
+      alert("You are out of room");
+    };
+  }
+};
+
+//Player paddle constructor and prototype
+function Player(x, y) {
+  return new Paddle(x, y);
 }
 
 Player.prototype = {
-  render: function(){
-    canvas_context.fillRect(this.xAxis, this.yAxis, this.width, this.height);
-  }
+  render: Paddle.render,
+  move: Paddle.move
 };
 
-function Computer() {
-  this.xAxis = 5;
-  this.yAxis = 225;
-  this.width = 10;
-  this.height = 50;
+//Computer paddle constructor and prototype
+function Computer(x, y) {
+  return new Paddle(x, y);
 }
 
 Computer.prototype = {
-  render: function(){
-    canvas_context.fillRect(this.xAxis, this.yAxis, this.width, this.height);
-  }
+  render: Paddle.render
 };
 
-function Ball() {
-  this.xAxis = 400;
-  this.yAxis = 250;
-  this.radius = 10;
-  this.startAngle = 0;
-  this.endAngle = 2 * Math.PI;
-  this.counterClockwise = false;
+//Ball constructor and prototype
+function Ball(x, y) {
+  this.xAxis = x;
+  this.yAxis = y;
 }
 
 Ball.prototype = {
@@ -45,19 +66,26 @@ Ball.prototype = {
     canvas_context.stroke();
     canvas_context.fillStyle = 'black';
     canvas_context.fill();
-  }
+  },
+  radius: 10,
+  startAngle: 0,
+  endAngle: 2 * Math.PI,
+  counterClockwise: false
 };
 
-function render(){
-  var computerPaddle = new Computer();
-  var playerPaddle = new Player();
-  var pongBall = new Ball();
+//Creates instances of the paddles and ball
+var computerPaddle = new Computer(5, 225);
+var playerPaddle = new Player(785, 225);
+var pongBall = new Ball(400, 250);
 
+//Renders the paddles and ball
+function render(){
   computerPaddle.render();
   playerPaddle.render();
   pongBall.render();
 }
 
+//Creates center line on canvas
 function centerLine(){
   for (var y = 0.5; y < 500; y+= 5) {
   canvas_context.moveTo(400, y);
@@ -67,7 +95,24 @@ function centerLine(){
   };
 }
 
-window.onload = function() {
+//Animation
+var animate = window.requestAnimationFrame || function(step) { window.setTimeout(step, 1000/60) };
+
+function step() {
+  animate(step);
   render();
+};
+
+//Onload and listeners
+window.onload = function() {
   centerLine();
+  animate(step);
 }
+
+window.addEventListener("keydown", function(event) {
+  if(event.code == "ArrowUp" || event.code == "ArrowDown") {
+    playerPaddle.move(event.code);
+  } else {
+    alert("Please use the up and down arrows to move the paddle");
+  };
+}, true);
