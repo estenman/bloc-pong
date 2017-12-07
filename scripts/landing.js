@@ -56,8 +56,10 @@ function Ball(x, y) {
   this.xAxis = x;
   this.yAxis = y;
   this.serveSpeed = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+  this.speed = this.serveSpeed;
   this.serveAngle = Math.floor(Math.random() * ((this.serveSpeed - 2) - 1 + 1)) + 2;
-  this.remaining = this.serveSpeed - this.xAxis;
+  this.angle = this.serveAngle;
+  this.remaining = this.speed - this.xAxis;
   this.yAddOrSubtract = true;
 }
 
@@ -86,14 +88,39 @@ Ball.prototype = {
     var AddOrSubtract = (Math.random() < 0.5);
     this.yAddOrSubtract = AddOrSubtract;
     this.yAxis = this.yAddOrSubtract ? this.yAxis + this.remaining : this.yAxis - this.remaining;
+    ballIsServed = true;
     animate(step);
-    this.ballMove();
+    //this.ballMove();
   },
   ballMove: function(){
     this.deleteBall();
-    this.xAxis += (this.serveSpeed - this.serveAngle);
+    this.xAxis += (this.speed - this.angle);
+    console.log("The xaxis is " + this.xAxis);
     this.yAxis = this.yAddOrSubtract ? this.yAxis + this.remaining : this.yAxis - this.remaining;
-    animate(step);
+    console.log("The yaxis is " + this.yAxis);
+    if (this.xAxis < (800 - (this.speed -this.angle) - 10) && this.xAxis > (0 + (this.speed - this.angle) + 10) && this.yAxis > (10 + this.remaining) && this.yAxis < (500 - this.remaining - 10)){
+      if (this.yAxis <= (10 + this.remaining)){
+        //collision detected
+        console.log("collided with top");
+        this.deleteBall();
+        this.xAxis += (this.speed - this.angle);
+        this.yAxis += this.remaining;
+        animate(step);
+      } else if (this.yAxis >= (500 - this.remaining - 10)){
+        //collision detected
+        console.log("collided with top");
+        this.deleteBall();
+        this.xAxis += (this.speed - this.angle);
+        this.yAxis -= this.remaining;
+        animate(step);
+      } else {
+        animate(step);
+      };
+    } else {
+      console.log("done");
+      //this.deleteBall();
+      ballIsServed = false;
+    };
   }
 };
 
@@ -119,13 +146,21 @@ function centerLine(){
   };
 }
 
+//Flag for if ball served
+var ballIsServed = false;
+
 //Animation
 var animate = window.requestAnimationFrame || function(step) { window.setTimeout(step, 1000/60) };
 
 function step() {
   animate(step);
+  if (ballIsServed == true) {
+    pongBall.ballMove();
+  };
   render();
 };
+
+
 
 //Onload and listeners
 window.onload = function() {
