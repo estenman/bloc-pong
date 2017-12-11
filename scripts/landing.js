@@ -57,9 +57,9 @@ function Ball(x, y) {
   this.yAxis = y;
   this.serveSpeed = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
   this.speed = this.serveSpeed;
-  this.serveAngle = Math.floor(Math.random() * ((this.serveSpeed - 2) - 1 + 1)) + 2;
+  this.serveAngle = Math.floor(Math.random() * ((this.serveSpeed - 5) - 5 + 1)) + 5;
   this.angle = this.serveAngle;
-  this.remaining = this.speed - this.xAxis;
+  this.remaining = this.xAxis - this.speed;
   this.yAddOrSubtract = true;
 }
 
@@ -95,25 +95,50 @@ Ball.prototype = {
   ballMove: function(){
     this.deleteBall();
     this.xAxis += (this.speed - this.angle);
+    console.log("************************************************************");
     console.log("The xaxis is " + this.xAxis);
     this.yAxis = this.yAddOrSubtract ? this.yAxis + this.remaining : this.yAxis - this.remaining;
     console.log("The yaxis is " + this.yAxis);
-    if (this.xAxis < (800 - (this.speed -this.angle) - 10) && this.xAxis > (0 + (this.speed - this.angle) + 10) && this.yAxis > (10 + this.remaining) && this.yAxis < (500 - this.remaining - 10)){
-      if (this.yAxis <= (10 + this.remaining)){
+
+    console.log("1: x < 800-speed-angle-10 : " + this.xAxis  + " < " + (800 - (this.speed -this.angle) - 10) + "=" + (this.xAxis < (800 - (this.speed -this.angle) - 10)));
+    console.log("2: x < 0-(speed-angle)+10 : " + this.xAxis + " > " + (0 + (this.speed - this.angle) + 10) + "=" + (this.xAxis > (0 + (this.speed - this.angle) + 10)));
+    console.log("3: y < 10+remaining : " + this.yAxis + " > " + 20 + "=" + (this.yAxis > 20));
+    console.log("4: y < 500-remaining-10 : " +  + this.yAxis + " < " + 480 + "=" + (this.yAxis < 480));
+
+    //if (this.xAxis < (800 - (this.speed -this.angle) - 10) && this.xAxis >= (0 + (this.speed - this.angle) + 10) && this.yAxis >= (10 + this.remaining) && this.yAxis <= (500 - this.remaining - 10)){
+    if (this.xAxis < (800 - (this.speed -this.angle) - 10) && this.xAxis >= (0 + (this.speed - this.angle) + 10) && this.yAxis >= 20 && this.yAxis <= 480){
+      console.log("More debugging when all is true.....");
+      console.log("xAxis: " + this.xAxis);
+      console.log("yAxis: " + this.yAxis);
+      console.log("speed: " + this.speed);
+      console.log("remaining: " + this.remaining);
+      console.log("angle: " + this.angle);
+      console.log("top: " + 20);
+      console.log("bottom: " + 480);
+
+      console.log('check for top collision:' + this.yAxis + " <= " + (20 + this.remaining*2) + " = " + (this.yAxis <= (20 + this.remaining*2)));
+      console.log('check for bottom collision:' + this.yAxis + " >= " + (480 - this.remaining*2) + " = " + (this.yAxis >= (480 - this.remaining*2)));
+      //debugger   // TODO:  Let's review how to use the Javascript debugger in our next meeting
+      if (this.yAxis <= (20 + this.remaining*2)){
+      //if (this.yAxis <= 10){
         //collision detected
         console.log("collided with top");
         this.deleteBall();
         this.xAxis += (this.speed - this.angle);
+        this.yAddOrSubtract = true;
         this.yAxis += this.remaining;
         animate(step);
-      } else if (this.yAxis >= (500 - this.remaining - 10)){
+      } else if (this.yAxis >= (480 - this.remaining*2)){
+      //} else if (this.yAxis >= 490){
         //collision detected
-        console.log("collided with top");
+        console.log("collided with bottom");
         this.deleteBall();
         this.xAxis += (this.speed - this.angle);
+        this.yAddOrSubtract = false;
         this.yAxis -= this.remaining;
         animate(step);
       } else {
+        console.log("defaulted to else");
         animate(step);
       };
     } else {
@@ -123,7 +148,6 @@ Ball.prototype = {
     };
   }
 };
-
 //Creates instances of the paddles and ball
 var computerPaddle = new Computer(5, 225);
 var playerPaddle = new Player(785, 225);
