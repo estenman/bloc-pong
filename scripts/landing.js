@@ -55,11 +55,13 @@ Computer.prototype = {
 function Ball(x, y) {
   this.xAxis = x;
   this.yAxis = y;
-  this.serveSpeed = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+  //this.serveSpeed = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+  this.serveSpeed = 5;
   this.speed = this.serveSpeed;
-  this.serveAngle = Math.floor(Math.random() * ((this.serveSpeed - 5) - 5 + 1)) + 5;
+  //this.serveAngle = Math.floor(Math.random() * ((this.serveSpeed - 5) - 5 + 1)) + 5;
+  this.serveAngle = Math.floor(Math.random() * (this.serveSpeed - 2 + 1)) + 2;
   this.angle = this.serveAngle;
-  this.remaining = this.xAxis - this.speed;
+  this.distanceMoveOnY = this.xAxis - this.speed;
   this.yAddOrSubtract = true;
 }
 
@@ -87,64 +89,62 @@ Ball.prototype = {
     this.xAxis += (this.serveSpeed - this.serveAngle);
     var AddOrSubtract = (Math.random() < 0.5);
     this.yAddOrSubtract = AddOrSubtract;
-    this.yAxis = this.yAddOrSubtract ? this.yAxis + this.remaining : this.yAxis - this.remaining;
+    this.yAxis = this.yAddOrSubtract ? this.yAxis + this.distanceMoveOnY : this.yAxis - this.distanceMoveOnY;
     ballIsServed = true;
     animate(step);
-    //this.ballMove();
   },
   ballMove: function(){
+    var distanceMoveOnX = this.speed - this.angle;
+
+    //Establish iner border using the ball diameter and twice the distance move in a step
+    var innerRightBorder = 800 - distanceMoveOnX * 2 - 20;
+    var innerLeftBorder = distanceMoveOnX * 2 + 20;
+    var innerTopBorder = this.distanceMoveOnY * 2 + 20;
+    var innerBottomBorder = 500 - this.distanceMoveOnY * 2 - 20;
+    console.log("innerRightBorder: " + innerRightBorder);
+    console.log("innerLeftBorder: " + innerLeftBorder);
+    console.log("innerTopBorder: " + innerTopBorder);
+    console.log("innerBottomBorder: " + innerBottomBorder);
+    //Change from serve to moving
     this.deleteBall();
-    this.xAxis += (this.speed - this.angle);
-    console.log("************************************************************");
-    console.log("The xaxis is " + this.xAxis);
-    this.yAxis = this.yAddOrSubtract ? this.yAxis + this.remaining : this.yAxis - this.remaining;
-    console.log("The yaxis is " + this.yAxis);
-
-    console.log("1: x < 800-speed-angle-10 : " + this.xAxis  + " < " + (800 - (this.speed -this.angle) - 10) + "=" + (this.xAxis < (800 - (this.speed -this.angle) - 10)));
-    console.log("2: x < 0-(speed-angle)+10 : " + this.xAxis + " > " + (0 + (this.speed - this.angle) + 10) + "=" + (this.xAxis > (0 + (this.speed - this.angle) + 10)));
-    console.log("3: y < 10+remaining : " + this.yAxis + " > " + 20 + "=" + (this.yAxis > 20));
-    console.log("4: y < 500-remaining-10 : " +  + this.yAxis + " < " + 480 + "=" + (this.yAxis < 480));
-
-    //if (this.xAxis < (800 - (this.speed -this.angle) - 10) && this.xAxis >= (0 + (this.speed - this.angle) + 10) && this.yAxis >= (10 + this.remaining) && this.yAxis <= (500 - this.remaining - 10)){
-    if (this.xAxis < (800 - (this.speed -this.angle) - 10) && this.xAxis >= (0 + (this.speed - this.angle) + 10) && this.yAxis >= 20 && this.yAxis <= 480){
-      console.log("More debugging when all is true.....");
-      console.log("xAxis: " + this.xAxis);
-      console.log("yAxis: " + this.yAxis);
-      console.log("speed: " + this.speed);
-      console.log("remaining: " + this.remaining);
-      console.log("angle: " + this.angle);
-      console.log("top: " + 20);
-      console.log("bottom: " + 480);
-
-      console.log('check for top collision:' + this.yAxis + " <= " + (20 + this.remaining*2) + " = " + (this.yAxis <= (20 + this.remaining*2)));
-      console.log('check for bottom collision:' + this.yAxis + " >= " + (480 - this.remaining*2) + " = " + (this.yAxis >= (480 - this.remaining*2)));
-      //debugger   // TODO:  Let's review how to use the Javascript debugger in our next meeting
-      if (this.yAxis <= (20 + this.remaining*2)){
-      //if (this.yAxis <= 10){
-        //collision detected
-        console.log("collided with top");
+    this.xAxis += distanceMoveOnX;
+    this.yAxis = this.yAddOrSubtract ? this.yAxis + this.distanceMoveOnY : this.yAxis - this.distanceMoveOnY;
+    console.log("the x axis: " + this.xAxis);
+    console.log("the y axis: " + this.yAxis);
+    //debugger   // TODO:
+    //If ball edge is within the inner border keep moving in same direction
+    if (this.xAxis < innerRightBorder && this.xAxis > innerLeftBorder && this.yAxis > innerTopBorder && this.yAxis < innerBottomBorder) {
+      animate(step);
+    //If ball edge is outside the inner border on the x axis stop game and add a score
+    } else if (this.xAxis >= innerRightBorder || this.xAxis <= innerLeftBorder) {
+        console.log("score");
+        if (this.xAxis >=innerRightBorder){
+          this.xAxis += (790 - this.xAxis);
+        } else {
+          this.xAxis -= (this.xAxis - 10);
+        };
+        ballIsServed = false;
         this.deleteBall();
-        this.xAxis += (this.speed - this.angle);
-        this.yAddOrSubtract = true;
-        this.yAxis += this.remaining;
-        animate(step);
-      } else if (this.yAxis >= (480 - this.remaining*2)){
-      //} else if (this.yAxis >= 490){
-        //collision detected
-        console.log("collided with bottom");
-        this.deleteBall();
-        this.xAxis += (this.speed - this.angle);
-        this.yAddOrSubtract = false;
-        this.yAxis -= this.remaining;
-        animate(step);
-      } else {
-        console.log("defaulted to else");
-        animate(step);
-      };
+    //If ball edge is outside the inner border on the y axis but not the x axis deflect
+    } else if (this.yAxis <= innerTopBorder && this.xAxis < innerRightBorder && this.xAxis > innerLeftBorder) {
+      console.log("*************************************")
+      console.log("deflect from top");
+      //this.yAxis -= this.yAxis - 10;
+      this.deleteBall();
+      this.yAddOrSubtract = true;
+      animate(step);
+    } else if (this.yAxis >= innerBottomBorder && this.xAxis < innerRightBorder && this.xAxis > innerLeftBorder) {
+      console.log("*************************************")
+      console.log("deflect from bottom");
+      this.deleteBall();
+      this.yAddOrSubtract = false;
+      animate(step);
+    //If ball outside the playing area stop the game
     } else {
-      console.log("done");
-      //this.deleteBall();
+      console.log("shutting down");
       ballIsServed = false;
+      //stopAnimate(myRequest);
+      this.deleteBall();
     };
   }
 };
@@ -175,6 +175,9 @@ var ballIsServed = false;
 
 //Animation
 var animate = window.requestAnimationFrame || function(step) { window.setTimeout(step, 1000/60) };
+//var stopAnimate = window.cancelAnimationFrame
+
+//var myReq;
 
 function step() {
   animate(step);
@@ -184,7 +187,7 @@ function step() {
   render();
 };
 
-
+//myReq = requestAnimationFrame(step);
 
 //Onload and listeners
 window.onload = function() {
