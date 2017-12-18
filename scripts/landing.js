@@ -3,28 +3,24 @@ var canvas_context = canvas.getContext("2d");
 
 //Paddle contructor and prototype
 function Paddle (x, y) {
-  this.xAxis = x;
-  this.yAxis = y;
-  this.paddleSpeed = 5;
+  this.xAxisPaddle = x;
+  this.yAxisPaddle = y;
+  this.paddleSpeed = 20;
 }
 
 Paddle.prototype = {
   render: function(){
-    canvas_context.fillRect(this.xAxis, this.yAxis, this.width, this.height);
-  },
-  delete: function(){
-    canvas_context.clearRect(this.xAxis, this.yAxis, this.width, this.height);
+    canvas_context.fillRect(this.xAxisPaddle, this.yAxisPaddle, this.width, this.height);
   },
   width: 10,
-  height: 50,
+  //height: 50,
+  height: 100,
   paddleMove: function(key){
-    if(key == "ArrowUp" && this.yAxis >= this.paddleSpeed) {
-      this.delete();
-      this.yAxis -= this.paddleSpeed;
+    if(key == "ArrowUp" && this.yAxisPaddle >= this.paddleSpeed) {
+      this.yAxisPaddle -= this.paddleSpeed;
       animate(step);
-    } else if(key == "ArrowDown" && this.yAxis <= 450 - this.paddleSpeed) {
-      this.delete();
-      this.yAxis += this.paddleSpeed;
+    } else if(key == "ArrowDown" && this.yAxisPaddle <= 450 - this.paddleSpeed) {
+      this.yAxisPaddle += this.paddleSpeed;
       animate(step);
     } else {
       alert("You are out of room");
@@ -55,14 +51,8 @@ Computer.prototype = {
 function Ball(x, y) {
   this.xAxis = x;
   this.yAxis = y;
-  //this.serveSpeed = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
-  this.serveSpeed = 5;
-  this.speed = this.serveSpeed;
-  //this.serveAngle = Math.floor(Math.random() * ((this.serveSpeed - 5) - 5 + 1)) + 5;
-  this.serveAngle = Math.floor(Math.random() * (this.serveSpeed - 2 + 1)) + 2;
-  this.angle = this.serveAngle;
-  this.distanceMoveOnY = this.xAxis - this.speed;
-  this.yAddOrSubtract = true;
+  this.xSpeed = Math.random() * 2 + 0.25;
+  this.ySpeed = Math.random() * 2 + -2;
 }
 
 Ball.prototype = {
@@ -75,79 +65,77 @@ Ball.prototype = {
     canvas_context.fillStyle = 'black';
     canvas_context.fill();
   },
-  deleteBall: function() {
-    canvas_context.beginPath();
-    canvas_context.clearRect(this.xAxis - this.radius - 1, this.yAxis - this.radius - 1, this.radius * 2 + 2, this.radius * 2 + 2);
-    canvas_context.closePath();
-  },
   radius: 10,
   startAngle: 0,
   endAngle: 2 * Math.PI,
   counterClockwise: false,
   ballServe: function(){
-    this.deleteBall();
-    this.xAxis += (this.serveSpeed - this.serveAngle);
-    var AddOrSubtract = (Math.random() < 0.5);
-    this.yAddOrSubtract = AddOrSubtract;
-    this.yAxis = this.yAddOrSubtract ? this.yAxis + this.distanceMoveOnY : this.yAxis - this.distanceMoveOnY;
+    this.xAxis += this.xSpeed;
+    this.yAxis += this.ySpeed;
     ballIsServed = true;
     animate(step);
   },
   ballMove: function(){
-    var distanceMoveOnX = this.speed - this.angle;
+    this.xAxis += this.xSpeed;
+    this.yAxis += this.ySpeed;
 
-    //Establish iner border using the ball diameter and twice the distance move in a step
-    var innerRightBorder = 800 - distanceMoveOnX * 2 - 20;
-    var innerLeftBorder = distanceMoveOnX * 2 + 20;
-    var innerTopBorder = this.distanceMoveOnY * 2 + 20;
-    var innerBottomBorder = 500 - this.distanceMoveOnY * 2 - 20;
-    console.log("innerRightBorder: " + innerRightBorder);
-    console.log("innerLeftBorder: " + innerLeftBorder);
-    console.log("innerTopBorder: " + innerTopBorder);
-    console.log("innerBottomBorder: " + innerBottomBorder);
-    //Change from serve to moving
-    this.deleteBall();
-    this.xAxis += distanceMoveOnX;
-    this.yAxis = this.yAddOrSubtract ? this.yAxis + this.distanceMoveOnY : this.yAxis - this.distanceMoveOnY;
-    console.log("the x axis: " + this.xAxis);
-    console.log("the y axis: " + this.yAxis);
-    //debugger   // TODO:
-    //If ball edge is within the inner border keep moving in same direction
-    if (this.xAxis < innerRightBorder && this.xAxis > innerLeftBorder && this.yAxis > innerTopBorder && this.yAxis < innerBottomBorder) {
-      animate(step);
-    //If ball edge is outside the inner border on the x axis stop game and add a score
-    } else if (this.xAxis >= innerRightBorder || this.xAxis <= innerLeftBorder) {
-        console.log("score");
-        if (this.xAxis >=innerRightBorder){
-          this.xAxis += (790 - this.xAxis);
-        } else {
-          this.xAxis -= (this.xAxis - 10);
-        };
-        ballIsServed = false;
-        this.deleteBall();
-    //If ball edge is outside the inner border on the y axis but not the x axis deflect
-    } else if (this.yAxis <= innerTopBorder && this.xAxis < innerRightBorder && this.xAxis > innerLeftBorder) {
-      console.log("*************************************")
-      console.log("deflect from top");
-      //this.yAxis -= this.yAxis - 10;
-      this.deleteBall();
-      this.yAddOrSubtract = true;
-      animate(step);
-    } else if (this.yAxis >= innerBottomBorder && this.xAxis < innerRightBorder && this.xAxis > innerLeftBorder) {
-      console.log("*************************************")
-      console.log("deflect from bottom");
-      this.deleteBall();
-      this.yAddOrSubtract = false;
-      animate(step);
-    //If ball outside the playing area stop the game
-    } else {
-      console.log("shutting down");
+    var right = this.xAxis + 5;
+    var top = this.yAxis + 5;
+    var left = this.xAxis - 5;
+    var bottom = this.yAxis - 5;
+    console.log("right: " + right);
+    console.log("top: " + top);
+    console.log("left: " + left);
+    console.log("bottom: " + bottom);
+
+    //Check for Top or Bottom collisions
+    if(top < 5) {
+      this.yAxis = 5;
+      this.ySpeed = -this.ySpeed;
+    } else if(bottom > canvas.height - this.radius) {
+      this.yAxis = canvas.height - 5;
+      this.ySpeed = -this.ySpeed;
+    }
+
+    //Check for Paddle collisions
+    console.log("xAxisPaddle: " + playerPaddle.xAxisPaddle);
+    console.log("yAxisPaddle: " + playerPaddle.yAxisPaddle);
+    console.log("width: " + playerPaddle.width);
+    console.log("height: " + playerPaddle.height);
+    console.log("xspeed: " + this.xSpeed);
+    console.log("yspeed: " + this.ySpeed);
+
+    if(right > (playerPaddle.xAxisPaddle) &&
+      top > (playerPaddle.yAxisPaddle) &&
+      bottom < (playerPaddle.yAxisPaddle + playerPaddle.height)) {
+      this.xSpeed = -this.xSpeed;   // Change the direction
+      this.ySpeed = -this.ySpeed;
+      this.xAxis = canvas.width - 20; // Update x axis position
+    }
+    if(left < (computerPaddle.xAxisPaddle + computerPaddle.width) &&
+      top > (computerPaddle.yAxisPaddle) &&
+      bottom < (computerPaddle.yAxisPaddle + computerPaddle.height)) {
+      this.xSpeed = -this.xSpeed;
+      this.ySpeed = -this.ySpeed;
+      this.xAxis = 20; // Update x axis position
+    }
+
+    // A player scored
+    if(this.xAxis < 10 || this.xAxis > canvas.width - 10) {
+      console.log("score");
       ballIsServed = false;
-      //stopAnimate(myRequest);
-      this.deleteBall();
-    };
+      canvas_context.clearRect(0, 0, canvas.width, canvas.height);
+      computerPaddle.xAxisPaddle = 5;
+      computerPaddle.yAxisPaddle = 225;
+      playerPaddle.xAxisPaddle = 785;
+      playerPaddle.yAxisPaddle = 225;
+      pongBall.xAxis = 30;
+      pongBall.yAxis = 250;
+      render();
+    }
   }
 };
+
 //Creates instances of the paddles and ball
 var computerPaddle = new Computer(5, 225);
 var playerPaddle = new Player(785, 225);
@@ -174,25 +162,25 @@ function centerLine(){
 var ballIsServed = false;
 
 //Animation
-var animate = window.requestAnimationFrame || function(step) { window.setTimeout(step, 1000/60) };
-//var stopAnimate = window.cancelAnimationFrame
-
-//var myReq;
+var animate = window.requestAnimationFrame || function(step) {
+   window.setTimeout(step, 1000/60) };
 
 function step() {
-  animate(step);
+  canvas_context.clearRect(0, 0, canvas.width, canvas.height);
+  render();
   if (ballIsServed == true) {
     pongBall.ballMove();
-  };
-  render();
+  } else {
+    window.cancelAnimationFrame;
+  }
+  animate(step);
 };
-
-//myReq = requestAnimationFrame(step);
 
 //Onload and listeners
 window.onload = function() {
   centerLine();
-  animate(step);
+  render();
+  //animate(step);
 }
 
 window.addEventListener("keydown", function(event) {
