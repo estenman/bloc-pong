@@ -5,7 +5,6 @@ var canvas_context = canvas.getContext("2d");
 function Paddle (x, y) {
   this.xAxisPaddle = x;
   this.yAxisPaddle = y;
-  this.paddleSpeed = 20;
 }
 
 Paddle.prototype = {
@@ -15,16 +14,19 @@ Paddle.prototype = {
   width: 10,
   //height: 50,
   height: 100,
-  paddleMove: function(key){
-    if(key == "ArrowUp" && this.yAxisPaddle >= this.paddleSpeed) {
-      this.yAxisPaddle -= this.paddleSpeed;
-      animate(step);
-    } else if(key == "ArrowDown" && this.yAxisPaddle <= 450 - this.paddleSpeed) {
-      this.yAxisPaddle += this.paddleSpeed;
-      animate(step);
+  move: function(key, paddleSpeed){
+    if(key == "ArrowUp" && this.yAxisPaddle >= paddleSpeed) {
+      this.yAxisPaddle -= paddleSpeed;
+    } else if(key == "ArrowDown" && this.yAxisPaddle <= 450 - paddleSpeed) {
+      this.yAxisPaddle += paddleSpeed;
+    }
+  },
+  update: function(pongBall){
+    if (pongBall.ySpeed < 0){
+      this.move("ArrowUp", .25);
     } else {
-      alert("You are out of room");
-    };
+      this.move("ArrowDown", .25);
+    }
   }
 };
 
@@ -34,8 +36,7 @@ function Player(x, y) {
 }
 
 Player.prototype = {
-  render: Paddle.render,
-  paddleMove: Paddle.move
+  render: Paddle.render
 };
 
 //Computer paddle constructor and prototype
@@ -44,14 +45,15 @@ function Computer(x, y) {
 }
 
 Computer.prototype = {
-  render: Paddle.render
+  render: Paddle.render,
+  update: Paddle.update
 };
 
 //Ball constructor and prototype
 function Ball(x, y) {
   this.xAxis = x;
   this.yAxis = y;
-  this.xSpeed = Math.random() * 2 + 0.25;
+  this.xSpeed = Math.random() * 2 + 1;
   this.ySpeed = Math.random() * 2 + -2;
 }
 
@@ -70,8 +72,6 @@ Ball.prototype = {
   endAngle: 2 * Math.PI,
   counterClockwise: false,
   ballServe: function(){
-    this.xAxis += this.xSpeed;
-    this.yAxis += this.ySpeed;
     ballIsServed = true;
     animate(step);
   },
@@ -83,10 +83,6 @@ Ball.prototype = {
     var top = this.yAxis + 5;
     var left = this.xAxis - 5;
     var bottom = this.yAxis - 5;
-    console.log("right: " + right);
-    console.log("top: " + top);
-    console.log("left: " + left);
-    console.log("bottom: " + bottom);
 
     //Check for Top or Bottom collisions
     if(top < 5) {
@@ -98,13 +94,6 @@ Ball.prototype = {
     }
 
     //Check for Paddle collisions
-    console.log("xAxisPaddle: " + playerPaddle.xAxisPaddle);
-    console.log("yAxisPaddle: " + playerPaddle.yAxisPaddle);
-    console.log("width: " + playerPaddle.width);
-    console.log("height: " + playerPaddle.height);
-    console.log("xspeed: " + this.xSpeed);
-    console.log("yspeed: " + this.ySpeed);
-
     if(right > (playerPaddle.xAxisPaddle) &&
       top > (playerPaddle.yAxisPaddle) &&
       bottom < (playerPaddle.yAxisPaddle + playerPaddle.height)) {
@@ -122,16 +111,21 @@ Ball.prototype = {
 
     // A player scored
     if(this.xAxis < 10 || this.xAxis > canvas.width - 10) {
-      console.log("score");
+
+      if(this.xAxis < 10) {
+        //player scored
+        console.log("player scored");
+      } else {
+        //computer scored
+        console.log("computer scored");
+      };
       ballIsServed = false;
       canvas_context.clearRect(0, 0, canvas.width, canvas.height);
-      computerPaddle.xAxisPaddle = 5;
-      computerPaddle.yAxisPaddle = 225;
-      playerPaddle.xAxisPaddle = 785;
-      playerPaddle.yAxisPaddle = 225;
-      pongBall.xAxis = 30;
-      pongBall.yAxis = 250;
+      computerPaddle = new Computer(5, 225);
+      playerPaddle = new Player(785, 225);
+      pongBall = new Ball(30, 250);
       render();
+      return pongBall.ballServe();
     }
   }
 };
@@ -148,16 +142,6 @@ function render(){
   pongBall.render();
 }
 
-//Creates center line on canvas
-function centerLine(){
-  for (var y = 0.5; y < 500; y+= 5) {
-  canvas_context.moveTo(400, y);
-  canvas_context.lineTo(400, y+2);
-  canvas_context.strokeStyle = 'black';
-  canvas_context.stroke();
-  };
-}
-
 //Flag for if ball served
 var ballIsServed = false;
 
@@ -168,24 +152,27 @@ var animate = window.requestAnimationFrame || function(step) {
 function step() {
   canvas_context.clearRect(0, 0, canvas.width, canvas.height);
   render();
-  if (ballIsServed == true) {
+  if (ballIsServed == true && pongBall.xSpeed > 0) {
     pongBall.ballMove();
+    animate(step);
+  } else if (ballIsServed == true && pongBall.xSpeed < 0) {
+    pongBall.ballMove();
+    computerPaddle.update(pongBall);
+    animate(step);
   } else {
     window.cancelAnimationFrame;
   }
-  animate(step);
+  //animate(step);
 };
 
 //Onload and listeners
 window.onload = function() {
-  centerLine();
   render();
-  //animate(step);
 }
 
 window.addEventListener("keydown", function(event) {
   if(event.code == "ArrowUp" || event.code == "ArrowDown") {
-    playerPaddle.paddleMove(event.code);
+    playerPaddle.move(event.code, 20);
   } else {
     alert("Please use the up and down arrows to move the paddle");
   };
