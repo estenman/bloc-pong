@@ -111,24 +111,24 @@ Ball.prototype = {
 
     // A player scored
     if(this.xAxis < 10 || this.xAxis > canvas.width - 10) {
-
       if(this.xAxis < 10) {
-        //player scored
-        console.log("player scored");
+        playerScore += 1;
+        playerScoreDisplay.innerHTML = playerScore;
       } else {
-        //computer scored
-        console.log("computer scored");
+        computerScore += 1
+        computerScoreDisplay.innerHTML = computerScore;
       };
-      ballIsServed = false;
-      canvas_context.clearRect(0, 0, canvas.width, canvas.height);
-      computerPaddle = new Computer(5, 225);
-      playerPaddle = new Player(785, 225);
-      pongBall = new Ball(30, 250);
-      render();
-      return pongBall.ballServe();
+      restart();
     }
   }
 };
+
+//Restart after a score function
+function restart () {
+  computerPaddle = new Computer(5, 225);
+  playerPaddle = new Player(785, 225);
+  pongBall = new Ball(30, 250);
+}
 
 //Creates instances of the paddles and ball
 var computerPaddle = new Computer(5, 225);
@@ -144,6 +144,10 @@ function render(){
 
 //Flag for if ball served
 var ballIsServed = false;
+
+//Scoring variables
+var computerScore = 0;
+var playerScore = 0;
 
 //Animation
 var animate = window.requestAnimationFrame || function(step) {
@@ -179,6 +183,8 @@ window.addEventListener("keydown", function(event) {
 }, true);
 
 var playButton = document.getElementById("play-button");
+var computerScoreDisplay = document.getElementById("computer-score");
+var playerScoreDisplay = document.getElementById("player-score");
 
 playButton.addEventListener("click", function() {
   pongBall.ballServe();
