@@ -12,8 +12,7 @@ Paddle.prototype = {
     canvas_context.fillRect(this.xAxisPaddle, this.yAxisPaddle, this.width, this.height);
   },
   width: 10,
-  //height: 50,
-  height: 100,
+  height: 75,
   move: function(key, paddleSpeed){
     if(key == "ArrowUp" && this.yAxisPaddle >= paddleSpeed) {
       this.yAxisPaddle -= paddleSpeed;
@@ -98,14 +97,14 @@ Ball.prototype = {
       top > (playerPaddle.yAxisPaddle) &&
       bottom < (playerPaddle.yAxisPaddle + playerPaddle.height)) {
       this.xSpeed = -this.xSpeed;   // Change the direction
-      this.ySpeed = -this.ySpeed;
+      this.ySpeed = -this.ySpeed * (Math.random() * (2-.1) + .1); // Change the direction and angle
       this.xAxis = canvas.width - 20; // Update x axis position
     }
     if(left < (computerPaddle.xAxisPaddle + computerPaddle.width) &&
       top > (computerPaddle.yAxisPaddle) &&
       bottom < (computerPaddle.yAxisPaddle + computerPaddle.height)) {
       this.xSpeed = -this.xSpeed;
-      this.ySpeed = -this.ySpeed;
+      this.ySpeed = -this.ySpeed * (Math.random() * (2-.1) + .1);
       this.xAxis = 20; // Update x axis position
     }
 
@@ -125,9 +124,22 @@ Ball.prototype = {
 
 //Restart after a score function
 function restart () {
-  computerPaddle = new Computer(5, 225);
-  playerPaddle = new Player(785, 225);
-  pongBall = new Ball(30, 250);
+  if(playerScore == 11 || computerScore == 11){
+    gameOverDisplay.style.display = "block";
+    if(playerScore == 11){
+      gameOverMessage.innerHTML = "You won!"
+    } else {
+      gameOverMessage.innerHTML = "You lost!"
+    }
+    computerScore = 0;
+    playerScore = 0;
+    ballIsServed = false;
+    console.log("game over");
+  } else {
+    computerPaddle = new Computer(5, 225);
+    playerPaddle = new Player(785, 225);
+    pongBall = new Ball(30, 250);
+  }
 }
 
 //Creates instances of the paddles and ball
@@ -166,25 +178,25 @@ function step() {
   } else {
     window.cancelAnimationFrame;
   }
-  //animate(step);
 };
 
 //Onload and listeners
 window.onload = function() {
   render();
+  gameOverDisplay.style.display = "none";
 }
 
 window.addEventListener("keydown", function(event) {
   if(event.code == "ArrowUp" || event.code == "ArrowDown") {
     playerPaddle.move(event.code, 20);
-  } else {
-    alert("Please use the up and down arrows to move the paddle");
-  };
+  }
 }, true);
 
 var playButton = document.getElementById("play-button");
 var computerScoreDisplay = document.getElementById("computer-score");
 var playerScoreDisplay = document.getElementById("player-score");
+var gameOverDisplay = document.getElementById("game-over");
+var gameOverMessage = document.getElementById("game-over-message");
 
 playButton.addEventListener("click", function() {
   pongBall.ballServe();

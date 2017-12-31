@@ -37,10 +37,63 @@ body {
 }
 
 .hero-content {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .hero-title {
   font-size: 3rem;
   text-align: center;
+  margin: 10px 0px;
+}
+
+.score {
+  text-align: center;
+}
+
+#game-over {
+  background-color: PapayaWhip;
+  text-align: center;
+  padding: 10px 0px;
+  color: black;
+}
+
+#game-over-message {
+  font-weight: bold;
+  font-size: 30px;
+}
+
+.column-third {
+    float: left;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 33.3%;
+}
+
+@media (max-width: 800px){
+  .main-landing {
+    display: none;
+  }
+  #play-button {
+    display: none;
+  }
+  #small-media-message {
+    display: block;
+    text-align: center;
+  }
+}
+
+@media (min-width: 801px){
+  #small-media-message {
+    display: none;
+  }
+}
+
+.clearfix::before,
+.clearfix::after {
+    content: " ";
+    display: table;
+}
+
+.clearfix::after {
+    clear: both;
 }

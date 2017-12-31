@@ -17,12 +17,25 @@
         <a href="instructions.html">Instructions</a>
         <a href="about.html">About</a>
       </nav>
-      <section class="hero-content">
-        <h1 class="hero-title">Bloc Pong</h1>
-        <button type="button" id="play-button">Play</button>
-        <p>Computer Score: <span id="computer-score">0</span></p>
-        <p>Player Score: <span id="player-score">0</span></p>
+      <h1 class="hero-title">Bloc Pong</h1>
+      <section class="hero-content clearfix">
+        <div class="column-third">
+          <p class="score">Computer Score: <span id="computer-score">0</span></p>
+        </div>
+        <div class="column-third">
+          <div class="score"><button type="button" id="play-button">Play</button></div>
+        </div>
+        <div class="column-third">
+          <p class="score">Player Score: <span id="player-score">0</span></p>
+        </div>
       </section>
+      <div id="game-over">
+        <p id="game-over-message"></p>
+        <p>Refresh the page to play again.</p>
+      </div>
+      <div id="small-media-message">
+        <p>Bloc Pong is best enjoyed on a larger screen. Please try another device.</p>
+      </div>
       <section class="main-landing">
         <canvas id="canvas-content" width="800" height="500"></canvas>
       </section>
